@@ -1,7 +1,7 @@
 {
   "name": "ucare-backend",
   "version": "1.0.0",
-  "description": "Backend API service for Unique Care smart lab maintenance system",
+  "description": "Backend API service for Unicare smart lab maintenance system",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

@@ -8,10 +8,10 @@ import {
   Menu, Package, Plus, QrCode, Search,
   Wrench, X, ArrowRight, ShieldCheck, Zap,
   Printer, Check, Sun, Moon, Upload, Video, VideoOff, Sparkles, RefreshCw, AlertTriangle, GraduationCap,
-  MapPin
+  MapPin, ListChecks, ImagePlus, MapPinned, SendHorizonal, BadgeCheck
 } from 'lucide-react'
 import { CommunityTestimonials } from './components/CommunityTestimonials'
-import { MissionSection, GuidelinesTracksSection } from './components/UniquesCommunitySections'
+import { SmartRoutingSection, WhatHappensNextSection } from './components/UniquesCommunitySections'
 import { StudentDashboard } from './components/StudentDashboard'
 import { TechnicianDashboard } from './components/TechnicianDashboard'
 import Hero3DHub from './components/Hero3DHub'
@@ -266,7 +266,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
               <ShieldCheck size={18} />
             </div>
             <span className="brand-text">
-              UNIQUE <span className="brand-text-accent">CARE</span>
+              UNI<span className="brand-text-accent">CARE</span>
             </span>
           </Link>
 
@@ -451,14 +451,132 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
         </div>
       </section>
 
-      {/* Interactive Mission Section (Matching Reference Screenshot 2) */}
-      <div id="mission">
-        <MissionSection />
+      {/* ── Raise a Complaint — 5-Step Circular Infographic ── */}
+      <section className="how-to-section reveal-on-scroll">
+        <div className="how-to-header">
+          <p className="how-to-eyebrow">YOUR COMPLAINT WORKFLOW</p>
+          <h2>Raise a <span className="text-red-highlight">Complaint</span> in 5 Steps</h2>
+          <p className="how-to-sub">From spotting a fault to getting it fixed — here's exactly how the Unicare pipeline works for you.</p>
+        </div>
+
+        <div className="how-to-steps-v2">
+
+          {/* Step 1 */}
+          <div className="htc-step reveal-scale delay-1">
+            <div className="htc-ring-wrap">
+              <svg className="htc-ring-svg" viewBox="0 0 200 200">
+                <circle className="htc-ring-track" cx="100" cy="100" r="90" />
+                <circle className="htc-ring-arc" cx="100" cy="100" r="90" />
+                <circle className="htc-glow-dot htc-glow-1" cx="100" cy="10" r="4" />
+                <circle className="htc-glow-dot htc-glow-2" cx="10" cy="100" r="3" />
+                <circle className="htc-glow-dot htc-glow-3" cx="190" cy="100" r="3" />
+              </svg>
+              <div className="htc-icon-badge">
+                <ListChecks size={18} />
+              </div>
+              <div className="htc-inner-content">
+                <span className="htc-step-num">01</span>
+                <h3 className="htc-step-title">SELECT ISSUE</h3>
+              </div>
+            </div>
+            <p className="htc-step-desc">Choose what's wrong — AC, Electrical, Plumbing, Furniture, Wi-Fi, or Other.</p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="htc-step reveal-scale delay-2">
+            <div className="htc-ring-wrap">
+              <svg className="htc-ring-svg" viewBox="0 0 200 200">
+                <circle className="htc-ring-track" cx="100" cy="100" r="90" />
+                <circle className="htc-ring-arc htc-arc-2" cx="100" cy="100" r="90" />
+                <circle className="htc-glow-dot htc-glow-1" cx="100" cy="10" r="4" />
+                <circle className="htc-glow-dot htc-glow-2" cx="190" cy="100" r="3" />
+                <circle className="htc-glow-dot htc-glow-3" cx="100" cy="190" r="3" />
+              </svg>
+              <div className="htc-icon-badge">
+                <ImagePlus size={18} />
+              </div>
+              <div className="htc-inner-content">
+                <span className="htc-step-num">02</span>
+                <h3 className="htc-step-title">ADD DETAILS</h3>
+              </div>
+            </div>
+            <p className="htc-step-desc">Describe the problem and upload a photo/video if needed.</p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="htc-step reveal-scale delay-3">
+            <div className="htc-ring-wrap">
+              <svg className="htc-ring-svg" viewBox="0 0 200 200">
+                <circle className="htc-ring-track" cx="100" cy="100" r="90" />
+                <circle className="htc-ring-arc htc-arc-3" cx="100" cy="100" r="90" />
+                <circle className="htc-glow-dot htc-glow-1" cx="190" cy="100" r="4" />
+                <circle className="htc-glow-dot htc-glow-2" cx="10" cy="100" r="3" />
+                <circle className="htc-glow-dot htc-glow-3" cx="100" cy="10" r="3" />
+              </svg>
+              <div className="htc-icon-badge">
+                <MapPinned size={18} />
+              </div>
+              <div className="htc-inner-content">
+                <span className="htc-step-num">03</span>
+                <h3 className="htc-step-title">ADD LOCATION</h3>
+              </div>
+            </div>
+            <p className="htc-step-desc">Select your building, floor, room/lab, or exact location.</p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="htc-step reveal-scale delay-4">
+            <div className="htc-ring-wrap">
+              <svg className="htc-ring-svg" viewBox="0 0 200 200">
+                <circle className="htc-ring-track" cx="100" cy="100" r="90" />
+                <circle className="htc-ring-arc htc-arc-4" cx="100" cy="100" r="90" />
+                <circle className="htc-glow-dot htc-glow-1" cx="100" cy="190" r="4" />
+                <circle className="htc-glow-dot htc-glow-2" cx="190" cy="100" r="3" />
+                <circle className="htc-glow-dot htc-glow-3" cx="10" cy="100" r="3" />
+              </svg>
+              <div className="htc-icon-badge">
+                <SendHorizonal size={18} />
+              </div>
+              <div className="htc-inner-content">
+                <span className="htc-step-num">04</span>
+                <h3 className="htc-step-title">SUBMIT REQUEST</h3>
+              </div>
+            </div>
+            <p className="htc-step-desc">Review the details and submit your maintenance request.</p>
+          </div>
+
+          {/* Step 5 */}
+          <div className="htc-step reveal-scale delay-5">
+            <div className="htc-ring-wrap">
+              <svg className="htc-ring-svg" viewBox="0 0 200 200">
+                <circle className="htc-ring-track" cx="100" cy="100" r="90" />
+                <circle className="htc-ring-arc htc-arc-5" cx="100" cy="100" r="90" />
+                <circle className="htc-glow-dot htc-glow-1" cx="10" cy="100" r="4" />
+                <circle className="htc-glow-dot htc-glow-2" cx="100" cy="190" r="3" />
+                <circle className="htc-glow-dot htc-glow-3" cx="100" cy="10" r="3" />
+              </svg>
+              <div className="htc-icon-badge">
+                <BadgeCheck size={18} />
+              </div>
+              <div className="htc-inner-content">
+                <span className="htc-step-num">05</span>
+                <h3 className="htc-step-title">TRACK & RESOLVE</h3>
+              </div>
+            </div>
+            <p className="htc-step-desc">Get a request ID, track the status, and receive updates until the issue is resolved.</p>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Smart Issue Routing Section */}
+      <div id="smart-routing">
+        <SmartRoutingSection />
       </div>
 
-      {/* Community Guidelines & Innovation Tracks Section (Matching Reference Screenshot 3) */}
-      <div id="guidelines">
-        <GuidelinesTracksSection />
+      {/* What Happens Next? — 5-Step Process Flow Section */}
+      <div id="what-happens-next">
+        <WhatHappensNextSection />
       </div>
 
       {/* Complaint Ledger Table (Matching Screenshot 1 EXACTLY) */}
@@ -560,7 +678,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
               Engagement &amp; <span className="text-red-highlight">Real-Time</span> Issue Discussion
             </h2>
             <p>
-              Campus communities work best when everyone stays in sync. Students can report hardware faults, technicians reply with status updates, and admins triage priority — all in one thread. With live ticket feeds, activity streams, and SLA-aware notifications, Unique Care keeps your entire maintenance workflow engaged and transparent.
+              Campus communities work best when everyone stays in sync. Students can report hardware faults, technicians reply with status updates, and admins triage priority — all in one thread. With live ticket feeds, activity streams, and SLA-aware notifications, Unicare keeps your entire maintenance workflow engaged and transparent.
             </p>
             <ul className="feature-bullet-list">
               <li><span className="bullet-dot" />Instant ticket creation via QR asset scan</li>
@@ -610,7 +728,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                   <div className="platform-avatar">UC</div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--txt)' }}>UNIQUE CARE</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--txt)' }}>Unicare</div>
                     <div style={{ fontSize: '0.74rem', color: 'var(--red)', fontWeight: 600 }}>SVIET Campus · Admin Panel</div>
                   </div>
                 </div>
@@ -637,7 +755,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
               Your Campus. <span className="text-red-highlight">Your Platform.</span>
             </h2>
             <p>
-              Unique Care is your campus maintenance system — it should feel like it. Fully configure lab zones, assign technician roles, and control access through your institutional SSO. Sync user data automatically and log everyone in to create a seamless single-platform experience.
+              Unicare is your campus maintenance system — it should feel like it. Fully configure lab zones, assign technician roles, and control access through your institutional SSO. Sync user data automatically and log everyone in to create a seamless single-platform experience.
             </p>
             <p style={{ marginTop: 12 }}>
               Automate maintenance workflows using thousands of integrations — from email digest reports to Zapier triggers and full REST API access for developers.
@@ -654,7 +772,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
             <span className="feature-eyebrow">Purpose-Built</span>
             <h2>Built for <span className="text-red-highlight">Campus Communities</span></h2>
             <p>
-              Unique Care is built from the ground up with campus communities in mind — students, technicians, department heads, and administrators all working together on a unified platform.
+              Unicare is built from the ground up with campus communities in mind — students, technicians, department heads, and administrators all working together on a unified platform.
             </p>
             <div className="built-pillars">
               <div className="built-pillar">
@@ -716,7 +834,7 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
               Join the <span className="text-red-highlight">Community</span>
             </h2>
             <p>
-              You've been invited to the exclusive UNIQUE CARE Registry. Complete your identification to gain access.
+              You've been invited to the exclusive Unicare Registry. Complete your identification to gain access.
             </p>
             <div className="community-illus-box">
               <img src="/libraria_community_style.svg" onError={(e) => { (e.target as HTMLImageElement).src = '/community_illus.png' }} alt="Community Member Identification Illustration" />
@@ -952,7 +1070,7 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
             onClick={() => setSideOpen(false)}
             title="Go to Homepage"
           >
-            UNIQUE CARE
+            Unicare
           </Link>
           <button 
             style={{ color: 'var(--txt-muted)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }} 
@@ -1915,7 +2033,7 @@ function Auth({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-black)', display: 'grid', placeItems: 'center', padding: '20px' }}>
       <div className="member-card" style={{ maxWidth: '420px', width: '100%' }}>
-        <div className="brand-text" style={{ marginBottom: '16px', textAlign: 'center' }}>UNIQUE CARE</div>
+        <div className="brand-text" style={{ marginBottom: '16px', textAlign: 'center' }}>Unicare</div>
         <h2 style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '8px' }}>{mode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
         <p style={{ color: 'var(--txt-muted)', textAlign: 'center', fontSize: '0.9rem', marginBottom: '24px' }}>Sign in to your maintenance workspace.</p>
         <button className="btn-red" style={{ width: '100%' }} onClick={() => navigate('/dashboard')}>

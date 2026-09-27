@@ -98,16 +98,13 @@ export function Footer() {
           <div className="footer-col-brand">
             <Link to="/" className="footer-brand-logo-wrap">
               <div className="footer-tu-shield">
-                <svg width="26" height="30" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 6V13C2 19.5 6.3 25.5 12 27C17.7 25.5 22 19.5 22 13V6L12 2Z" fill="#18181b" stroke="#dc2626" strokeWidth="2" />
-                  <path d="M7 9H17V12H13.5V20H10.5V12H7V9Z" fill="#dc2626" />
-                </svg>
+                <img src="/uniwhite.png" alt="The Uniques" style={{ width: 72, height: 72, objectFit: 'contain' }} />
               </div>
               <div className="footer-brand-headings">
                 <div className="footer-brand-name">
                   the <span>uniques</span>
                 </div>
-                <div className="footer-brand-subtitle">COMMUNITY × UNIQUE CARE</div>
+                <div className="footer-brand-subtitle">COMMUNITY × Unicare</div>
               </div>
             </Link>
 
@@ -343,7 +340,7 @@ export function Footer() {
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--txt)' }}>Campus Helpdesk &amp; Support</h3>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--txt-muted)' }}>The Uniques × Unique Care SVIET</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--txt-muted)' }}>The Uniques × Unicare SVIET</span>
                 </div>
               </div>
               <button type="button" className="footer-modal-close" onClick={() => setHelpOpen(false)}>

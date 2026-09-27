@@ -1,6 +1,6 @@
-# Unique Care (Ucare) — Full-Stack Monorepo
+# Unicare (Ucare) — Full-Stack Monorepo
 
-Welcome to **Unique Care (Ucare)**, a Smart Lab Maintenance & Automation System built for The Uniques Community.
+Welcome to **Unicare (Ucare)**, a Smart Lab Maintenance & Automation System built for The Uniques Community.
 
 This repository is structured as a decoupled full-stack architecture with separated `frontend` and `backend` applications.
 

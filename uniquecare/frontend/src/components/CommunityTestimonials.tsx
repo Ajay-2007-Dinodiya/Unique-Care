@@ -99,7 +99,7 @@ const initialTestimonials: TestimonialItem[] = [
     badge: 'Enterprise Architect',
     badgeColor: '#0284c7',
     quote: '"Mentoring students from The Uniques Community has been truly refreshing. Their problem-solving agility, git hygiene, and systems architecture skills rival engineers with 2+ years industry experience."',
-    extendedQuote: 'Unique Care reflects industrial-grade enterprise SLA management combined with intuitive human-centric UI design.',
+    extendedQuote: 'Unicare reflects industrial-grade enterprise SLA management combined with intuitive human-centric UI design.',
     rating: 5,
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80',
     verified: true,
@@ -112,7 +112,7 @@ const initialTestimonials: TestimonialItem[] = [
     batch: 'Industry Mentor',
     badge: 'VP of Engineering',
     badgeColor: '#059669',
-    quote: '"The hands-on lab infrastructure and live ticketing culture in Unique Care inculcates real engineering discipline early on. SVIET students stand out in every hackathon and recruitment drive."',
+    quote: '"The hands-on lab infrastructure and live ticketing culture in Unicare inculcates real engineering discipline early on. SVIET students stand out in every hackathon and recruitment drive."',
     extendedQuote: 'Seeing students build automated QR workflows and telemetry dashboards shows the incredible potential of student-led innovation.',
     rating: 5,
     avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&auto=format&fit=crop&q=80',
@@ -510,7 +510,7 @@ export function CommunityTestimonials() {
                   <label>Your Experience / Comments *</label>
                   <textarea
                     rows={4}
-                    placeholder="Describe how The Uniques Community or Unique Care impacted your skills, projects, or mentorship..."
+                    placeholder="Describe how The Uniques Community or Unicare impacted your skills, projects, or mentorship..."
                     value={newQuote}
                     onChange={e => setNewQuote(e.target.value)}
                     required
