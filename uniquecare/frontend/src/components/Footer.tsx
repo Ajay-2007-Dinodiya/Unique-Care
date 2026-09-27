@@ -157,11 +157,6 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#community-testimonials">
-                  <span>Student &amp; Mentor Reviews</span>
-                </a>
-              </li>
-              <li>
                 <Link to="/dashboard">
                   <span>Maintenance Dashboard</span>
                 </Link>

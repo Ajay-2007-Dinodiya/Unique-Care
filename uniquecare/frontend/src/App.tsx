@@ -10,8 +10,8 @@ import {
   Printer, Check, Sun, Moon, Upload, Video, VideoOff, Sparkles, RefreshCw, AlertTriangle, GraduationCap,
   MapPin, ListChecks, ImagePlus, MapPinned, SendHorizonal, BadgeCheck
 } from 'lucide-react'
-import { CommunityTestimonials } from './components/CommunityTestimonials'
 import { SmartRoutingSection, WhatHappensNextSection } from './components/UniquesCommunitySections'
+import { PreventiveMaintenanceSection } from './components/PreventiveMaintenanceSection'
 import { StudentDashboard } from './components/StudentDashboard'
 import { TechnicianDashboard } from './components/TechnicianDashboard'
 import Hero3DHub from './components/Hero3DHub'
@@ -240,15 +240,8 @@ function IssueDetailModal({ issue, onClose, onStatusChange }: {
 }
 
 /* ── Homepage Component (Exact Libraria / Antigravity Aesthetic) ── */
-function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 'dark' | 'light'; toggleTheme: () => void }) {
+function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' | 'light'; toggleTheme: () => void }) {
   const navigate = useNavigate()
-  const [query, setQuery] = useState('')
-  const [category, setCategory] = useState('All')
-
-  const filteredRecords = records.filter(r =>
-    (category === 'All' || r.category === category) &&
-    (r.title.toLowerCase().includes(query.toLowerCase()) || r.id.toLowerCase().includes(query.toLowerCase()))
-  )
 
   return (
     <div className="landing-page">
@@ -273,7 +266,6 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
           <div className="landing-nav-links">
             <Link to="/dashboard" className="active-nav">Dashboard</Link>
             <a href="#usps">Features</a>
-            <a href="#community-testimonials">Testimonials</a>
             <a href="#community">Community</a>
           </div>
 
@@ -579,91 +571,8 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
         <WhatHappensNextSection />
       </div>
 
-      {/* Complaint Ledger Table (Matching Screenshot 1 EXACTLY) */}
-      <section id="catalog" className="catalog-container reveal-on-scroll">
-        <div className="catalog-header">
-          <h2>Archive Ledger</h2>
-          <p>Comprehensive repository of community lab infrastructure assets. Filter by category or search by record title.</p>
-        </div>
-
-        <div className="catalog-toolbar">
-          <div className="catalog-search-wrap">
-            <Search size={18} color="var(--txt-muted)" />
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search repository..."
-            />
-          </div>
-
-          <div className="category-select-wrap">
-            <label>Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)}>
-              <option value="All">All</option>
-              <option value="Workstation">Workstation</option>
-              <option value="AV Equipment">AV Equipment</option>
-              <option value="Networking">Networking</option>
-              <option value="Infrastructure">Infrastructure</option>
-            </select>
-          </div>
-
-          <div className="entries-count">
-            {filteredRecords.length} ENTRIES AVAILABLE
-          </div>
-        </div>
-
-        <table className="archive-table">
-          <thead>
-            <tr>
-              <th>Registry ID</th>
-              <th>Archive Title</th>
-              <th>Registry Location</th>
-              <th>Current Status</th>
-              <th>Asset Ledger</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRecords.map(r => (
-              <tr key={r.id}>
-                <td>
-                  <span className="ticket-id-tag">{r.id}</span>
-                </td>
-                <td>
-                  <div className="table-record-cell">
-                    <span className="record-title-bold">{r.title}</span>
-                    <div className="record-meta-inline">
-                      <span className="meta-reporter-chip">{r.reporter}</span>
-                      <span className="meta-category-chip">{r.category}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span className="table-location-chip">
-                    <MapPin size={13} />
-                    {r.location}
-                  </span>
-                </td>
-                <td>
-                  <span className={`badge-status ${r.status === 'Resolved' ? 'available' : r.status === 'In Progress' ? 'in-progress' : 'critical'}`}>
-                    <span className="status-dot"></span>
-                    {r.status.toUpperCase()}
-                  </span>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn-dark" style={{ padding: '6px 14px', fontSize: '0.8rem' }} onClick={() => navigate('/issues')}>
-                      View Record
-                    </button>
-                    <button className="btn-red" style={{ padding: '6px 14px', fontSize: '0.8rem' }} onClick={() => navigate('/report')}>
-                      Request
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {/* ── PREVENTIVE MAINTENANCE SECTION (Matching Reference Infographic) ── */}
+      <PreventiveMaintenanceSection />
 
       {/* ── Section 01: Engagement & Real-Time Issue Discussion ── */}
       <section className="feature-split-section reveal-on-scroll">
@@ -822,9 +731,6 @@ function Home({ records, theme, toggleTheme }: { records: IssueRecord[]; theme: 
         </div>
       </section>
 
-
-      {/* Community & Industry Mentors Testimonials Carousel */}
-      <CommunityTestimonials />
 
       {/* Member Registration Section (Matching Screenshot 2 EXACTLY) */}
       <section id="community" className="community-section">
