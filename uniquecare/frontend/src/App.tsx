@@ -8,15 +8,21 @@ import {
   Menu, Package, Plus, QrCode, Search,
   Wrench, X, ArrowRight, ShieldCheck, Zap,
   Printer, Check, Sun, Moon, Upload, Video, VideoOff, Sparkles, RefreshCw, AlertTriangle, GraduationCap,
-  MapPin, ListChecks, ImagePlus, MapPinned, SendHorizonal, BadgeCheck
+  MapPin, ListChecks, ImagePlus, MapPinned, SendHorizonal, BadgeCheck,
+  TrendingUp, TrendingDown, Calendar, Activity, Users, Building2, Gauge, ArrowUpRight, Timer, Target, Repeat, Settings,
+  LogOut, Eye, EyeOff, Loader2, UserPlus, LogIn
 } from 'lucide-react'
 import { SmartRoutingSection, WhatHappensNextSection } from './components/UniquesCommunitySections'
 import { PreventiveMaintenanceSection } from './components/PreventiveMaintenanceSection'
 import { StudentDashboard } from './components/StudentDashboard'
 import { TechnicianDashboard } from './components/TechnicianDashboard'
+import { AdminDashboard } from './components/AdminDashboard'
 import Hero3DHub from './components/Hero3DHub'
 import StarBorder from './components/StarBorder'
 import { Footer } from './components/Footer'
+import { ProtectedRoute, getDefaultDashboard } from './components/ProtectedRoute'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import type { DisplayRole } from './context/AuthContext'
 import { fetchIssuesFromApi } from './services/api'
 
 /* ── Types ─────────────────────────────────────────────────── */
@@ -62,15 +68,15 @@ const initialAssets: AssetRecord[] = [
   { id: '2025BTCS210', name: 'Neha Kapoor', category: 'AV Equipment', location: 'Launchspace', status: 'Active', lastService: '2026-07-01', nextDue: '2027-01-01', health: 98 },
 ]
 
-const navLinks = [
-  ['/student', 'Student Portal', GraduationCap],
-  ['/technician', 'Technician Queue', Wrench],
-  ['/dashboard', 'Admin Dashboard', LayoutDashboard],
-  ['/issues', 'Issues Tracker', ClipboardList],
-  ['/report', 'Report via QR', QrCode],
-  ['/inventory', 'Inventory DB', Grid2X2],
-  ['/analytics', 'Analytics', BarChart3],
-] as const
+const allNavLinks: readonly [string, string, typeof GraduationCap, readonly DisplayRole[]][] = [
+  ['/student', 'Student Portal', GraduationCap, ['Student']],
+  ['/technician', 'Technician Queue', Wrench, ['Tech']],
+  ['/dashboard', 'Admin Dashboard', LayoutDashboard, ['Admin']],
+  ['/issues', 'Issues Tracker', ClipboardList, ['Admin', 'Tech']],
+  ['/report', 'Report via QR', QrCode, ['Admin', 'Student']],
+  ['/inventory', 'Inventory DB', Grid2X2, ['Admin', 'Tech']],
+  ['/analytics', 'Analytics', BarChart3, ['Admin']],
+]
 
 /* ── SVG Generated QR Code ────────────────────────────────── */
 function GeneratedQRCode({ code }: { code: string }) {
@@ -240,8 +246,37 @@ function IssueDetailModal({ issue, onClose, onStatusChange }: {
 }
 
 /* ── Homepage Component (Exact Libraria / Antigravity Aesthetic) ── */
-function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' | 'light'; toggleTheme: () => void }) {
+function Home({ 
+  theme, 
+  toggleTheme,
+  initialAuthModal = null
+}: { 
+  records?: IssueRecord[]; 
+  theme: 'dark' | 'light'; 
+  toggleTheme: () => void;
+  initialAuthModal?: 'login' | 'signup' | null;
+}) {
   const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | null>(initialAuthModal)
+
+  useEffect(() => {
+    if (initialAuthModal) {
+      setAuthModalMode(initialAuthModal)
+    }
+  }, [initialAuthModal])
+
+  const handleOpenAuth = (mode: 'login' | 'signup') => {
+    setAuthModalMode(mode)
+  }
+
+  const handleProtectedAction = (targetPath: string) => {
+    if (isAuthenticated && user) {
+      navigate(targetPath)
+    } else {
+      setAuthModalMode('login')
+    }
+  }
 
   return (
     <div className="landing-page">
@@ -278,7 +313,23 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
               {theme === 'dark' ? <Sun size={15} color="var(--amber-txt)" /> : <Moon size={15} color="var(--red)" />}
               <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
-            <Link to="/login" className="btn-red" style={{ padding: '8px 18px', fontSize: '0.84rem' }}>Sign In</Link>
+            {isAuthenticated && user ? (
+              <button
+                onClick={() => navigate(getDefaultDashboard(user.role))}
+                className="btn-red"
+                style={{ padding: '8px 18px', fontSize: '0.84rem' }}
+              >
+                My Dashboard →
+              </button>
+            ) : (
+              <button
+                onClick={() => handleOpenAuth('login')}
+                className="btn-red"
+                style={{ padding: '8px 18px', fontSize: '0.84rem' }}
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </header>
       </StarBorder>
@@ -297,12 +348,20 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
             Fully automated digital platform for reporting, tracking, and managing SVIET campus infrastructure and lab assets. Built for The Uniques Community.
           </p>
           <div className="hero-btns">
-            <Link to="/dashboard" className="btn-red">
+            <button 
+              onClick={() => handleProtectedAction(getDefaultDashboard(user?.role || 'student'))} 
+              className="btn-red"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', border: 'none' }}
+            >
               Open Dashboard <ArrowRight size={16} />
-            </Link>
-            <Link to="/report" className="btn-dark">
+            </button>
+            <button 
+              onClick={() => handleProtectedAction('/report')} 
+              className="btn-dark"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            >
               <QrCode size={16} /> Report via QR
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -328,7 +387,7 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
           <div className="numbered-cards-col">
 
             {/* Card 1 */}
-            <div className="nc-card nc-card-expandable reveal-scale delay-1" onClick={() => navigate('/dashboard')}>
+            <div className="nc-card nc-card-expandable reveal-scale delay-1" onClick={() => handleProtectedAction('/dashboard')}>
               <span className="nc-number">1</span>
               <div className="nc-ghost-num">01</div>
               <div className="nc-icon-wrap"><LayoutDashboard size={26} /></div>
@@ -349,7 +408,7 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
             </div>
 
             {/* Card 2 */}
-            <div className="nc-card nc-card-expandable reveal-scale delay-2" onClick={() => navigate('/issues')}>
+            <div className="nc-card nc-card-expandable reveal-scale delay-2" onClick={() => handleProtectedAction('/issues')}>
               <span className="nc-number">2</span>
               <div className="nc-ghost-num">02</div>
               <div className="nc-icon-wrap"><ClipboardList size={26} /></div>
@@ -373,7 +432,7 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
 
           {/* Center card (Card 3 - identical clean styling) */}
           <div className="numbered-cards-center">
-            <div className="nc-card nc-card-expandable reveal-scale delay-3" onClick={() => navigate('/report')}>
+            <div className="nc-card nc-card-expandable reveal-scale delay-3" onClick={() => handleProtectedAction('/report')}>
               <span className="nc-number">3</span>
               <div className="nc-ghost-num">03</div>
               <div className="nc-icon-wrap"><QrCode size={26} /></div>
@@ -398,7 +457,7 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
           <div className="numbered-cards-col">
 
             {/* Card 4 */}
-            <div className="nc-card nc-card-expandable reveal-scale delay-4" onClick={() => navigate('/inventory')}>
+            <div className="nc-card nc-card-expandable reveal-scale delay-4" onClick={() => handleProtectedAction('/inventory')}>
               <span className="nc-number">4</span>
               <div className="nc-ghost-num">04</div>
               <div className="nc-icon-wrap"><Grid2X2 size={26} /></div>
@@ -419,7 +478,7 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
             </div>
 
             {/* Card 5 */}
-            <div className="nc-card nc-card-expandable reveal-scale delay-5" onClick={() => navigate('/analytics')}>
+            <div className="nc-card nc-card-expandable reveal-scale delay-5" onClick={() => handleProtectedAction('/analytics')}>
               <span className="nc-number">5</span>
               <div className="nc-ghost-num">05</div>
               <div className="nc-icon-wrap"><BarChart3 size={26} /></div>
@@ -463,9 +522,6 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
                 <circle className="htc-glow-dot htc-glow-2" cx="10" cy="100" r="3" />
                 <circle className="htc-glow-dot htc-glow-3" cx="190" cy="100" r="3" />
               </svg>
-              <div className="htc-icon-badge">
-                <ListChecks size={18} />
-              </div>
               <div className="htc-inner-content">
                 <span className="htc-step-num">01</span>
                 <h3 className="htc-step-title">SELECT ISSUE</h3>
@@ -484,9 +540,6 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
                 <circle className="htc-glow-dot htc-glow-2" cx="190" cy="100" r="3" />
                 <circle className="htc-glow-dot htc-glow-3" cx="100" cy="190" r="3" />
               </svg>
-              <div className="htc-icon-badge">
-                <ImagePlus size={18} />
-              </div>
               <div className="htc-inner-content">
                 <span className="htc-step-num">02</span>
                 <h3 className="htc-step-title">ADD DETAILS</h3>
@@ -753,14 +806,14 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
               <span>Member Invitation</span>
             </div>
 
-            <button className="google-btn" onClick={() => navigate('/dashboard')}>
+            <button className="google-btn" onClick={() => handleOpenAuth('signup')}>
               <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.6 7.4C.6 9.4 0 11.6 0 14s.6 4.6 1.6 6.6l3.7-2.9c-.2-.7-.4-1.5-.4-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.2-6.7-5.3L1.6 16C3.5 19.8 7.4 23 12 23z"/></svg>
               Sign up with Google (Recommended)
             </button>
 
             <div className="or-divider">OR MANUAL REGISTRY</div>
 
-            <form className="reg-form" onSubmit={e => { e.preventDefault(); navigate('/dashboard') }}>
+            <form className="reg-form" onSubmit={e => { e.preventDefault(); handleOpenAuth('signup'); }}>
               <div className="reg-field">
                 <label>Full Institutional Name</label>
                 <input placeholder="e.g. Rahul Sharma" required />
@@ -800,14 +853,32 @@ function Home({ theme, toggleTheme }: { records?: IssueRecord[]; theme: 'dark' |
               <button type="submit" className="submit-reg-btn">Complete Registration</button>
 
               <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.85rem', color: 'var(--txt-muted)' }}>
-                Already a member? <Link to="/login" style={{ color: 'var(--red)', fontWeight: 600 }}>Sign In instead</Link>
+                Already a member?{' '}
+                <button
+                  type="button"
+                  onClick={() => handleOpenAuth('login')}
+                  style={{ background: 'none', border: 'none', color: 'var(--red)', fontWeight: 600, cursor: 'pointer', padding: 0 }}
+                >
+                  Sign In instead
+                </button>
               </div>
             </form>
           </div>
         </div>
       </section>
 
-      <Footer />
+      <Footer onOpenAuth={handleOpenAuth} />
+
+      <AuthModal
+        isOpen={!!authModalMode}
+        initialMode={authModalMode || 'login'}
+        onClose={() => {
+          setAuthModalMode(null)
+          if (window.location.pathname === '/login' || window.location.pathname === '/signup') {
+            window.history.replaceState(null, '', '/')
+          }
+        }}
+      />
     </div>
   )
 }
@@ -879,16 +950,22 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <ScrollRevealManager />
-      <div className="global-ambient-glow" aria-hidden="true" />
-      <Routes>
-        <Route path="/" element={<Home records={records} theme={theme} toggleTheme={toggleTheme} />} />
-        <Route path="/login" element={<Auth mode="login" />} />
-        <Route path="/signup" element={<Auth mode="signup" />} />
-        <Route path="/*" element={<Portal records={records} setRecords={setRecords} assets={assets} setAssets={setAssets} theme={theme} toggleTheme={toggleTheme} />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <ScrollRevealManager />
+        <div className="global-ambient-glow" aria-hidden="true" />
+        <Routes>
+          <Route path="/" element={<Home records={records} theme={theme} toggleTheme={toggleTheme} />} />
+          <Route path="/login" element={<Home records={records} theme={theme} toggleTheme={toggleTheme} initialAuthModal="login" />} />
+          <Route path="/signup" element={<Home records={records} theme={theme} toggleTheme={toggleTheme} initialAuthModal="signup" />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <Portal records={records} setRecords={setRecords} assets={assets} setAssets={setAssets} theme={theme} toggleTheme={toggleTheme} />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
@@ -900,9 +977,8 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
   theme: 'dark' | 'light';
   toggleTheme: () => void;
 }) {
+  const { user, isAuthenticated, displayRole: role, logout } = useAuth()
   const [sideOpen, setSideOpen] = useState(false)
-  const [role, setRole] = useState<'Admin' | 'Tech' | 'Student'>('Admin')
-  const [roleToast, setRoleToast] = useState<string | null>(null)
   const [selectedIssue, setSelectedIssue] = useState<IssueRecord | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
@@ -915,18 +991,19 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
 
   const navigate = useNavigate()
 
-  const handleRoleChange = (newRole: 'Admin' | 'Tech' | 'Student') => {
-    setRole(newRole)
-    setRoleToast(`Switched to ${newRole} Mode (${newRole === 'Admin' ? 'Full Control' : newRole === 'Tech' ? 'Resolution & SLA' : 'Ticket Reporting'})`)
-    if (newRole === 'Student') {
-      navigate('/student')
-    } else if (newRole === 'Tech') {
-      navigate('/technician')
-    } else {
-      navigate('/dashboard')
-    }
-    setTimeout(() => setRoleToast(null), 3000)
+  const handleSignOut = () => {
+    logout()
+    setProfileOpen(false)
+    navigate('/login', { replace: true })
   }
+
+  /** Get user initials for avatar */
+  const userInitials = user?.name
+    ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : 'UC'
+
+  /** Get role label for display */
+  const roleLabel = role === 'Admin' ? 'System Administrator' : role === 'Tech' ? 'Technician' : 'Student'
 
   const handleStatusChange = (id: string, newStatus: 'Open' | 'In Progress' | 'Resolved') => {
     setRecords(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r))
@@ -950,14 +1027,6 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
 
   return (
     <div className="portal">
-      {/* Role Change Notification Toast */}
-      {roleToast && (
-        <div className="role-toast">
-          <Zap size={18} color="var(--red-bright)" />
-          <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{roleToast}</span>
-        </div>
-      )}
-
       {/* Mobile/Collapsed Sidebar Backdrop */}
       {sideOpen && (
         <div 
@@ -989,19 +1058,23 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
         </div>
 
         <nav>
-          {navLinks.map(([to, label, Icon]) => (
-            <NavLink key={to} to={to} onClick={() => setSideOpen(false)}>
+          {allNavLinks
+            .filter(([, , , roles]) => (roles as readonly string[]).includes(role))
+            .map(([to, label, Icon]) => (
+            <NavLink key={to} to={to as string} onClick={() => setSideOpen(false)}>
               <Icon size={17} />
               <span>{label}</span>
             </NavLink>
           ))}
         </nav>
 
+        {/* Role Badge in Sidebar */}
         <div style={{ padding: '16px', margin: '16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px' }}>
-          <b style={{ fontSize: '0.72rem', color: 'var(--txt-muted)', display: 'block', marginBottom: '4px' }}>SYSTEM TELEMETRY</b>
+          <b style={{ fontSize: '0.72rem', color: 'var(--txt-muted)', display: 'block', marginBottom: '4px' }}>LOGGED IN AS</b>
           <span style={{ fontSize: '0.82rem', color: 'var(--green-txt)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            ● Operational Grid ({role} Mode)
+            ● {roleLabel} Mode
           </span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--txt-sub)', display: 'block', marginTop: '4px' }}>{user?.email}</span>
         </div>
       </aside>
 
@@ -1077,13 +1150,11 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
               <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
             </button>
 
-            {/* Functional Role Selector */}
+            {/* Role Badge (read-only, shows assigned role from backend) */}
             <div className="role-switch">
-              {(['Admin', 'Tech', 'Student'] as const).map(r => (
-                <button key={r} className={`role-btn ${role === r ? 'active' : ''}`} onClick={() => handleRoleChange(r)}>
-                  {r}
-                </button>
-              ))}
+              <button className="role-btn active" style={{ cursor: 'default', pointerEvents: 'none' }}>
+                {role}
+              </button>
             </div>
 
             {/* Functional Notifications Dropdown */}
@@ -1134,7 +1205,7 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
               )}
             </div>
 
-            {/* Functional User Profile Menu */}
+            {/* User Profile Menu — shows real user info from AuthContext */}
             <div style={{ position: 'relative' }}>
               <div 
                 className="user-chip" 
@@ -1142,17 +1213,18 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
                 onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false) }}
                 title="User Profile Menu"
               >
-                <div className="user-avatar">{role === 'Admin' ? 'AD' : role === 'Tech' ? 'RM' : 'VK'}</div>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{role === 'Admin' ? 'Ajay Dinodiya' : role === 'Tech' ? 'Er. R. Mehta' : 'Vishwajeet'}</span>
+                <div className="user-avatar">{userInitials}</div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user?.name || 'User'}</span>
               </div>
 
               {profileOpen && (
                 <div className="nav-popover" style={{ width: '270px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border-subtle)', marginBottom: '10px' }}>
-                    <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '1rem' }}>{role === 'Admin' ? 'AD' : role === 'Tech' ? 'RM' : 'VK'}</div>
+                    <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '1rem' }}>{userInitials}</div>
                     <div>
-                      <b style={{ fontSize: '0.92rem', color: 'var(--txt)', display: 'block' }}>{role === 'Admin' ? 'Ajay Dinodiya' : role === 'Tech' ? 'Er. R. Mehta' : 'Vishwajeet Kumar'}</b>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--txt-muted)', fontFamily: 'monospace' }}>{role === 'Admin' ? 'System Administrator' : role === 'Tech' ? 'TECH-01 · Senior Tech' : '2024BTCS205 · Batch 4.0'}</span>
+                      <b style={{ fontSize: '0.92rem', color: 'var(--txt)', display: 'block' }}>{user?.name || 'User'}</b>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--txt-muted)', fontFamily: 'monospace' }}>{roleLabel}</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--txt-sub)', display: 'block', marginTop: '2px' }}>{user?.email}</span>
                     </div>
                   </div>
 
@@ -1174,9 +1246,9 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
                     <button 
                       className="btn-dark" 
                       style={{ justifyContent: 'flex-start', border: 'none', background: 'transparent', padding: '8px', color: 'var(--red-bright)' }}
-                      onClick={() => { navigate('/login'); setProfileOpen(false) }}
+                      onClick={handleSignOut}
                     >
-                      🚪 Sign Out / Switch User
+                      <LogOut size={15} /> Sign Out
                     </button>
                   </div>
                 </div>
@@ -1186,19 +1258,50 @@ function Portal({ records, setRecords, assets, setAssets, theme, toggleTheme }: 
         </header>
 
         <Routes>
-          <Route path="/" element={<Navigate to="/student" replace />} />
-          <Route path="/student" element={<StudentDashboard records={records} onAddRecord={(newR) => setRecords([newR, ...records])} onSelectIssue={setSelectedIssue} />} />
-          <Route path="/technician" element={<TechnicianDashboard records={records} onStatusChange={handleStatusChange} onSelectIssue={setSelectedIssue} />} />
-          <Route path="/dashboard" element={<Dashboard records={records} onSelectIssue={setSelectedIssue} />} />
-          <Route path="/issues" element={<Issues records={records} onSelectIssue={setSelectedIssue} />} />
-          <Route path="/report" element={<Report onAddRecord={(newR) => setRecords([newR, ...records])} />} />
-          <Route path="/inventory" element={<Inventory assets={assets} onAddAsset={(newA) => setAssets([newA, ...assets])} />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/maintenance" element={<TechnicianDashboard records={records} onStatusChange={handleStatusChange} onSelectIssue={setSelectedIssue} />} />
-          <Route path="*" element={<Navigate to="/student" replace />} />
+          <Route path="/" element={<Navigate to={getDefaultDashboard(user?.role || 'student')} replace />} />
+          <Route path="/student" element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <StudentDashboard records={records} onAddRecord={(newR) => setRecords([newR, ...records])} onSelectIssue={setSelectedIssue} />
+            </ProtectedRoute>
+          } />
+          <Route path="/technician" element={
+            <ProtectedRoute allowedRoles={['technician']}>
+              <TechnicianDashboard records={records} onStatusChange={handleStatusChange} onSelectIssue={setSelectedIssue} />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={['admin', 'lab_admin']}>
+              <AdminDashboard records={records} onSelectIssue={setSelectedIssue} />
+            </ProtectedRoute>
+          } />
+          <Route path="/issues" element={
+            <ProtectedRoute allowedRoles={['admin', 'lab_admin', 'technician']}>
+              <Issues records={records} onSelectIssue={setSelectedIssue} />
+            </ProtectedRoute>
+          } />
+          <Route path="/report" element={
+            <ProtectedRoute allowedRoles={['admin', 'lab_admin', 'student']}>
+              <Report onAddRecord={(newR) => setRecords([newR, ...records])} />
+            </ProtectedRoute>
+          } />
+          <Route path="/inventory" element={
+            <ProtectedRoute allowedRoles={['admin', 'lab_admin', 'technician']}>
+              <Inventory assets={assets} onAddAsset={(newA) => setAssets([newA, ...assets])} />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute allowedRoles={['admin', 'lab_admin']}>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/maintenance" element={
+            <ProtectedRoute allowedRoles={['technician']}>
+              <TechnicianDashboard records={records} onStatusChange={handleStatusChange} onSelectIssue={setSelectedIssue} />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to={getDefaultDashboard(user?.role || 'student')} replace />} />
         </Routes>
 
-        <Footer />
       </div>
 
       {selectedIssue && (
@@ -1217,140 +1320,7 @@ function Page({ children }: { children: React.ReactNode }) {
   return <main className="page">{children}</main>
 }
 
-function Dashboard({ records, onSelectIssue }: { records: IssueRecord[]; onSelectIssue: (issue: IssueRecord) => void }) {
-  const navigate = useNavigate()
-
-  return (
-    <Page>
-      <div className="page-heading">
-        <div>
-          <p className="kicker">THE UNIQUES COMMUNITY · SVIET</p>
-          <h1>Smart Lab Operations Dashboard</h1>
-          <span>Centralized control room for reporting, tracking, and resolving lab maintenance.</span>
-        </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Link to="/inventory" className="btn-dark"><Package size={15} /> Inventory</Link>
-          <Link to="/report" className="btn-red"><QrCode size={15} /> New Ticket</Link>
-        </div>
-      </div>
-
-      {/* Enhanced Interactive Stat Grid with Glowing Animated Symbols & Hover Effects */}
-      <div className="stat-grid">
-        <div className="stat-card" onClick={() => navigate('/inventory')} title="Click to view full inventory">
-          <div>
-            <p>Infrastructure Assets</p>
-            <h2>312</h2>
-            <span>100% Tracked</span>
-          </div>
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.1) 100%)' }}>
-            <Grid2X2 size={22} color="var(--red-bright)" />
-          </div>
-          <span className="card-hover-hint">View Inventory ↗</span>
-        </div>
-
-        <div className="stat-card" onClick={() => navigate('/issues')} title="Click to view active tickets">
-          <div>
-            <p>Active Tickets</p>
-            <h2 style={{ color: 'var(--red-bright)' }}>{records.filter(r => r.status !== 'Resolved').length}</h2>
-            <span style={{ color: 'var(--amber-txt)' }}>2 Critical</span>
-          </div>
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(185, 28, 28, 0.15) 100%)' }}>
-            <CircleAlert size={22} color="var(--red-bright)" />
-          </div>
-          <span className="card-hover-hint">View Tickets ↗</span>
-        </div>
-
-        <div className="stat-card" onClick={() => navigate('/maintenance')} title="Click to view resolved queue">
-          <div>
-            <p>Resolved (July)</p>
-            <h2>{records.filter(r => r.status === 'Resolved').length}</h2>
-            <span>+14% Speed</span>
-          </div>
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(22, 101, 52, 0.1) 100%)', borderColor: 'rgba(34, 197, 94, 0.4)' }}>
-            <CheckCircle2 size={22} color="var(--green-txt)" />
-          </div>
-          <span className="card-hover-hint" style={{ color: 'var(--green-txt)' }}>View Resolved ↗</span>
-        </div>
-
-        <div className="stat-card" onClick={() => navigate('/analytics')} title="Click to view SLA analytics">
-          <div>
-            <p>Avg SLA Response</p>
-            <h2>3.2h</h2>
-            <span>Target &lt; 4.0h</span>
-          </div>
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(29, 78, 216, 0.1) 100%)', borderColor: 'rgba(59, 130, 246, 0.4)' }}>
-            <Clock3 size={22} color="#60a5fa" />
-          </div>
-          <span className="card-hover-hint" style={{ color: '#60a5fa' }}>View SLA Analytics ↗</span>
-        </div>
-      </div>
-
-
-      {/* Match Screenshot 1 Complaint Ledger on Dashboard */}
-      <div className="portal-card complaint-ledger-card">
-        <div className="ledger-card-header">
-          <div>
-            <div className="ledger-title-badge">
-              <span className="live-pulsing-dot"></span>
-              LIVE DISPATCH FEED
-            </div>
-            <h3 style={{ fontSize: '1.25rem', marginTop: '6px' }}>Active Complaint Ledger</h3>
-            <p style={{ color: 'var(--txt-muted)', fontSize: '0.85rem' }}>Live maintenance tickets across campus engineering labs</p>
-          </div>
-          <button className="btn-red-outline" onClick={() => navigate('/issues')}>View All Tickets ↗</button>
-        </div>
-
-        <div className="table-responsive-wrapper">
-          <table className="archive-table">
-            <thead>
-              <tr>
-                <th>Roll Number</th>
-                <th>Complaint &amp; Individual</th>
-                <th>Registry Location</th>
-                <th>Current Status</th>
-                <th style={{ textAlign: 'right' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.slice(0, 4).map(r => (
-                <tr key={r.id}>
-                  <td><span className="ticket-id-tag">{r.id}</span></td>
-                  <td>
-                    <div className="table-record-cell">
-                      <span className="record-title-bold">{r.title}</span>
-                      <div className="record-meta-inline">
-                        <span className="meta-reporter-chip">{r.reporter}</span>
-                        <span className="meta-category-chip">{r.category}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="table-location-chip">
-                      <MapPin size={13} />
-                      {r.location}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`badge-status ${r.status === 'Resolved' ? 'available' : r.status === 'In Progress' ? 'in-progress' : 'critical'}`}>
-                      <span className="status-dot"></span>
-                      {r.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <button className="btn-table-action" onClick={() => onSelectIssue(r)}>
-                      <span>View Record</span>
-                      <ArrowRight size={13} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </Page>
-  )
-}
+/* Dashboard component has been extracted to components/AdminDashboard.tsx */
 
 function Issues({ records, onSelectIssue }: { records: IssueRecord[]; onSelectIssue: (issue: IssueRecord) => void }) {
   const [query, setQuery] = useState('')
@@ -1934,18 +1904,234 @@ function Analytics() {
   )
 }
 
+function AuthModal({ 
+  isOpen, 
+  onClose, 
+  initialMode = 'login' 
+}: { 
+  isOpen: boolean
+  onClose: () => void
+  initialMode?: 'login' | 'signup' 
+}) {
+  const { login, signup, isAuthenticated, user, error, clearError, loading } = useAuth()
+  const navigate = useNavigate()
+  const [mode, setMode] = useState<'login' | 'signup'>(initialMode)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [selectedRole, setSelectedRole] = useState('student')
+  const [showPassword, setShowPassword] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMode(initialMode)
+    setFormError(null)
+    clearError()
+  }, [initialMode, isOpen, clearError])
+
+  if (!isOpen) return null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFormError(null)
+    clearError()
+
+    if (mode === 'login') {
+      if (!email.trim() || !password.trim()) {
+        setFormError('Please enter both email and password')
+        return
+      }
+      const success = await login(email.trim(), password)
+      if (success) {
+        onClose()
+        const targetRole = user?.role || selectedRole || 'student'
+        navigate(getDefaultDashboard(targetRole), { replace: true })
+      }
+    } else {
+      if (!name.trim() || !email.trim() || !password.trim()) {
+        setFormError('All fields are required')
+        return
+      }
+      if (password.length < 6) {
+        setFormError('Password must be at least 6 characters')
+        return
+      }
+      const success = await signup(name.trim(), email.trim(), password, selectedRole)
+      if (success) {
+        onClose()
+        navigate(getDefaultDashboard(selectedRole), { replace: true })
+      }
+    }
+  }
+
+  const toggleMode = () => {
+    setMode(prev => (prev === 'login' ? 'signup' : 'login'))
+    setFormError(null)
+    clearError()
+  }
+
+  const displayError = formError || error
+
+  return (
+    <div className="auth-modal-overlay" onClick={onClose}>
+      <div className="auth-card" onClick={e => e.stopPropagation()}>
+        <button className="auth-modal-close" onClick={onClose} title="Close">
+          <X size={18} />
+        </button>
+
+        {/* Brand Header */}
+        <div className="auth-brand">
+          <div className="auth-brand-link">
+            <div className="auth-brand-icon">
+              <ShieldCheck size={22} />
+            </div>
+            <span className="auth-brand-text">
+              UNI<span className="auth-brand-accent">CARE</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h1 className="auth-title">
+          {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+        </h1>
+        <p className="auth-subtitle">
+          {mode === 'login'
+            ? 'Sign in to access your maintenance dashboard'
+            : 'Register to join the campus maintenance system'
+          }
+        </p>
+
+        {/* Error Display */}
+        {displayError && (
+          <div className="auth-error">
+            <CircleAlert size={16} />
+            <span>{displayError}</span>
+          </div>
+        )}
+
+        {/* Auth Form */}
+        <form onSubmit={handleSubmit} className="auth-form">
+          {mode === 'signup' && (
+            <div className="auth-field">
+              <label htmlFor="auth-name">Full Name</label>
+              <div className="auth-input-wrap">
+                <Users size={16} className="auth-input-icon" />
+                <input
+                  id="auth-name"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. Rahul Sharma"
+                  autoComplete="name"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="auth-field">
+            <label htmlFor="auth-email">Email Address</label>
+            <div className="auth-input-wrap">
+              <MapPin size={16} className="auth-input-icon" />
+              <input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@sviet.ac.in"
+                autoComplete="email"
+              />
+            </div>
+          </div>
+
+          <div className="auth-field">
+            <label htmlFor="auth-password">Password</label>
+            <div className="auth-input-wrap">
+              <ShieldCheck size={16} className="auth-input-icon" />
+              <input
+                id="auth-password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              />
+              <button
+                type="button"
+                className="auth-password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {mode === 'signup' && (
+            <div className="auth-field">
+              <label htmlFor="auth-role">Account Role</label>
+              <div className="auth-role-selector">
+                {[
+                  { value: 'student', label: 'Student', icon: GraduationCap, desc: 'Report issues & track tickets' },
+                  { value: 'technician', label: 'Technician', icon: Wrench, desc: 'Resolve tickets & manage repairs' },
+                  { value: 'admin', label: 'Admin', icon: LayoutDashboard, desc: 'Full system control & analytics' },
+                ].map(r => (
+                  <button
+                    key={r.value}
+                    type="button"
+                    className={`auth-role-option ${selectedRole === r.value ? 'selected' : ''}`}
+                    onClick={() => setSelectedRole(r.value)}
+                  >
+                    <r.icon size={20} />
+                    <span className="auth-role-label">{r.label}</span>
+                    <span className="auth-role-desc">{r.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="auth-submit-btn"
+            disabled={loading}
+          >
+            {loading ? (
+              <><Loader2 size={18} className="auth-spinner" /> Processing...</>
+            ) : mode === 'login' ? (
+              <><LogIn size={18} /> Sign In</>
+            ) : (
+              <><UserPlus size={18} /> Create Account</>
+            )}
+          </button>
+        </form>
+
+        {/* Toggle Login/Signup */}
+        <div className="auth-toggle">
+          {mode === 'login' ? (
+            <>
+              Don't have an account?{' '}
+              <button type="button" onClick={toggleMode} className="auth-toggle-link">Create one</button>
+            </>
+          ) : (
+            <>
+              Already have an account?{' '}
+              <button type="button" onClick={toggleMode} className="auth-toggle-link">Sign in</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Auth({ mode }: { mode: 'login' | 'signup' }) {
   const navigate = useNavigate()
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-black)', display: 'grid', placeItems: 'center', padding: '20px' }}>
-      <div className="member-card" style={{ maxWidth: '420px', width: '100%' }}>
-        <div className="brand-text" style={{ marginBottom: '16px', textAlign: 'center' }}>Unicare</div>
-        <h2 style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '8px' }}>{mode === 'signup' ? 'Create Account' : 'Welcome Back'}</h2>
-        <p style={{ color: 'var(--txt-muted)', textAlign: 'center', fontSize: '0.9rem', marginBottom: '24px' }}>Sign in to your maintenance workspace.</p>
-        <button className="btn-red" style={{ width: '100%' }} onClick={() => navigate('/dashboard')}>
-          Continue to Dashboard
-        </button>
-      </div>
-    </div>
+    <AuthModal
+      isOpen={true}
+      initialMode={mode}
+      onClose={() => navigate('/', { replace: true })}
+    />
   )
 }

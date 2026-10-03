@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, MessageSquare, Check, X, ShieldCheck, Sparkles, Send, Globe, Award, Radio } from 'lucide-react'
 
-export function Footer() {
+export function Footer({ onOpenAuth }: { onOpenAuth?: (mode: 'login' | 'signup') => void } = {}) {
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpMessage, setHelpMessage] = useState('')
   const [helpSent, setHelpSent] = useState(false)
@@ -190,9 +190,15 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/login">
-                  <span>Member Sign In</span>
-                </Link>
+                {onOpenAuth ? (
+                  <button type="button" className="footer-inline-btn" onClick={() => onOpenAuth('login')}>
+                    <span>Member Sign In</span>
+                  </button>
+                ) : (
+                  <Link to="/login">
+                    <span>Member Sign In</span>
+                  </Link>
+                )}
               </li>
             </ul>
           </div>

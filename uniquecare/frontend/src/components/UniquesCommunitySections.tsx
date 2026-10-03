@@ -43,13 +43,10 @@ export function SmartRoutingSection() {
 
         {/* Header */}
         <div className="smart-routing-header">
-          <div className="smart-routing-badge">
-            <Sparkles size={14} />
-            <span>SMART ISSUE ROUTING</span>
-          </div>
-          <h2 className="smart-routing-title">
-            The Right Issue. The Right Person. <span className="text-red-highlight">The Right Time.</span>
-          </h2>
+          <h2 className="smart-routing-title">Smart <span className="text-red-highlight">Routing</span></h2>
+          <p className="smart-routing-subtitle">
+            THE RIGHT ISSUE. <span className="text-red-highlight">THE RIGHT PERSON.</span>
+          </p>
           <p className="smart-routing-desc">
             Every report is automatically categorized, prioritized, and routed to the appropriate maintenance team so issues reach the people who can actually fix them.
           </p>

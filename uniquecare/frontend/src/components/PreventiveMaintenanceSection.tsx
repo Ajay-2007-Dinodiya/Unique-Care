@@ -78,19 +78,11 @@ export function PreventiveMaintenanceSection() {
       <div className="pm-container">
         {/* Section Header */}
         <div className="pm-header">
-          <div className="pm-badge">
-            <Sparkles size={14} className="pm-badge-icon" />
-            <span>PREVENTIVE MAINTENANCE</span>
-          </div>
-
-          <h2 className="pm-title">
-            Your maintenance system shouldn't wait for something to fail.{' '}
-            <span className="text-red-highlight">It should learn from what keeps going wrong.</span>
-          </h2>
+          <h2 className="pm-title">Preventive Maintenance</h2>
 
           <p className="pm-subtitle">
-            By analyzing past complaints, recurring issues, maintenance history, and asset performance,
-            the system can identify potential problem areas and flag them for attention before they turn into bigger disruptions.
+            Your maintenance system shouldn't wait for something to fail.{' '}
+            <span className="text-red-highlight">It should learn from what keeps going wrong.</span>
           </p>
 
           <div className="pm-flow-indicator">
